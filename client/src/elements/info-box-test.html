@@ -1,5 +1,8 @@
 <link rel="import" href="info-box.html">
 
+<link rel="import" href="info-plugins.html">
+<link rel="import" href="info-plugin-dialog.html">
+
 <dom-module id="info-box-test">
     <template>
         <info-box id="infobox"></info-box>
@@ -11,7 +14,7 @@
 
         document.addEventListener("WebComponentsReady", function () {
             var infoBox = document.querySelector("#infobox");
-            infobox.addTab("input", "Input", "common-input");
+            // infobox.addTab("input", "Input", "common-input");
             infobox.addPlugin("common-filter", "Filter", "common");
             infobox.addPlugin("common-aggregate", "Aggregate", "common");
             infobox.addPlugin("common-sort", "Sort", "common");

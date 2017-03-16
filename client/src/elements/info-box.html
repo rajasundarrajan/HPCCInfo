@@ -1,4 +1,4 @@
-<link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
@@ -9,6 +9,32 @@
 
 <link rel="import" href="../../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+<link rel="import" href="../../../bower_components/app-layout/demo/sample-content.html">
+
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../../../bower_components/paper-styles/color.html">
+
+ <script src="webcomponentsjs/webcomponents-lite.min.js"></script>
+  
+  <link rel="import" href="../../../bower_components/paper-tabs/paper-tab.html">
+  <link rel="import" href="../../../bower_components/iron-pages/iron-pages.html">
+
+
 
 
 <link rel="import" href="info-plugins.html">
@@ -23,6 +49,62 @@
             text-transform: uppercase;
             margin-bottom: 1px;
         }
+
+            app-header {
+                background-color: #00897B;
+                color: #fff;
+            }
+
+            app-header paper-icon-button {
+                --paper-icon-button-ink-color: white;
+            }
+
+            app-toolbar {
+                background-color: #4285f4;
+                color: #fff;
+            }
+
+
+            paper-icon-button {
+                --paper-icon-button-ink-color: white;
+            }
+
+
+            paper-icon-button+[main-title] {
+                margin-left: 24px;
+            }
+
+
+            paper-progress {
+                display: block;
+                width: 100%;
+                --paper-progress-active-color: rgba(255, 255, 255, 0.5);
+                --paper-progress-container-color: transparent;
+            }
+
+
+            app-header {
+                @apply(--layout-fixed-top);
+                color: #fff;
+                --app-header-background-rear-layer: {
+                    background-color: #ef6c00;
+                }
+                ;
+            }
+            app-drawer {
+                --app-drawer-scrim-background: rgba(0, 0, 100, 0.8);
+                --app-drawer-content-container: {
+                    background-color: #B0BEC5;
+                }
+                width: 500px;
+            }
+            paper-tabs {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                -webkit-font-smoothing: antialiased;
+                width: 100%;
+                text-transform: uppercase;
+                margin-bottom: 1px;
+            }
         
         iron-pages {
             width: 100%;
@@ -39,8 +121,21 @@
         }
     </style>
 
+        <filter-dialog id="filter-dialog"></filter-dialog>
+
+
     <template>
         <app-toolbar>
+
+                        <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
+
+            <div main-title id ="homepagediv"> </div>
+
+            <dialog-icon-button dialogId="filter-dialog" icon="search"></dialog-icon-button>
+     
+            <paper-icon-button icon="edit" on-tap="filterDialog"></paper-icon-button>
+            <paper-icon-button icon="cloud-download" onclick="modal.open()"></paper-icon-button>
+
             <paper-tabs id="tabs" selected="{{selected}}"></paper-tabs>
             <paper-icon-button icon="create" on-tap="_pluginEditOpenHandler"></paper-icon-button>
             <paper-menu-button horizontal-align="right">
@@ -51,6 +146,22 @@
         <iron-pages id="pages" selected="{{selected}}"></iron-pages>
 
         <info-plugin-dialog id="plugininfo"></info-plugin-dialog>
+
+        
+        <app-drawer id="drawer">
+            <div role="listbox">
+                <paper-button icon="create" id="newWorksheet" on-click="document.querySelector("#infobox").addTab("input", "Input", "common-input");" label="New Worksheet" >New Worksheet</paper-button>
+                <paper-button icon="mail" id="openWorksheet" label="Open Worksheet" >Open Worksheet</paper-button>
+                <paper-input style="padding-left: 5px" id='cluster_name' label="Cluster Name" on-change="addMeToSession" ></paper-input>
+                <paper-input style="padding-left: 5px" id='cluster_address' label="Cluster Address" on-change="addMeToSession"></paper-input>
+                <paper-input style="padding-left: 5px" id='port' label="port" on-change="addMeToSession"></paper-input>
+                <paper-input style="padding-left: 5px" id='user' label="User" on-change="addMeToSession"></paper-input>
+                <paper-input type="password"  style="padding-left: 5px" id='password' label="Password" on-change="addMeToSession"></paper-input>  
+                <paper-toggle-button  id="httpSecured" on-change="addMeToSession">HTTP Secured</paper-toggle-button>
+
+            </div>
+        </app-drawer>
+
     </template>
 
 
@@ -69,7 +180,9 @@
                     value: 0
                 }
             },
-
+          listeners: {
+            'newWorksheet.tap': '_pluginMenuTapHandler'
+        },
             addPlugin: function (id, label, category) {
                 var item = document.createElement("paper-item");
                 item.id = "item_" + id;
@@ -202,6 +315,17 @@
             },
 
         });
+        document.addEventListener("WebComponentsReady", function () {
+            var newWorksheet = document.querySelector("#newWorksheet");
+
+            var openWorksheet = document.querySelector("#openWorksheet");
+            newWorksheet.addEventListener('tap', '_pluginNewTabHandler');
+            // infobox.addTab("input", "Input", "common-input");
+            infobox.addPlugin("common-filter", "Filter", "common");
+            infobox.addPlugin("common-aggregate", "Aggregate", "common");
+            infobox.addPlugin("common-sort", "Sort", "common");
+        });
+
     </script>
 
 </dom-module>

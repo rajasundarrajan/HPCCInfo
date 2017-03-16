@@ -1,0 +1,119 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html" />
+
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+
+
+<!--- ---------------------------------------------filter dialog------------------------------------------------>
+
+
+<dom-module id="new-worksheet-dialog">
+
+    <template>
+
+        <iron-ajax
+		id="ajaxdfuFilesListInfo"
+		method = "POST"
+		handle-as="json" 
+        headers='[[headers]]'
+		on-response="DFUFilesListResponse">
+	</iron-ajax>
+
+        <style>
+            paper-button.green {
+                background-color: var(--paper-green-500);
+                color: white;
+            }
+            
+            paper-button.indigo {
+                background-color: var(--paper-indigo-500);
+                color: white;
+                --paper-button-raised-keyboard-focus: {
+                    background-color: var(--paper-pink-a200) !important;
+                    color: white !important;
+                }
+                ;
+            }
+            
+            paper-button.indigo:hover {
+                background-color: var(--paper-indigo-400);
+            }
+            
+            
+            paper-dialog {
+                width: 500px;
+            }
+        </style>
+
+        <paper-dialog id="dialog" modal>
+
+            <paper-input id='title' label="Title"></paper-input>
+            <paper-input id='scope' label="Scope" on-change="loadsubfiles"></paper-input>
+            <vaadin-combo-box id='subfilesgrid' required label="Sub Files" items='["Revenue", "Flight"]'></vaadin-combo-box>
+
+            <div class="buttons">
+                <paper-button dialog-confirm raised class="indigo" on-click="selectfilename">Ok</paper-button>
+                <paper-button dialog-dismiss raised class="green">Cancel</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+
+    <script>
+
+        Polymer({
+            is: 'new-worksheet-dialog',
+
+            open: function () {
+               this.$.dialog.open();
+            },
+            loadsubfiles: function(event){
+                this.$.ajaxdfuFilesListInfo.url=sessionStorage.getItem('hpccURL') + "/WsDfu/DFUQuery.json";
+                this.$.ajaxdfuFilesListInfo.params = {LogicalName: event.currentTarget.value + '*', "Access-Control-Allow-Origin": sessionStorage.getItem("hpccURL")};
+                this.$.ajaxdfuFilesListInfo.headers = {user:sessionStorage.getItem("user"), pass:(sessionStorage.getItem("password") === null ? "" : sessionStorage.getItem("password"))};
+			    this.$.ajaxdfuFilesListInfo.generateRequest();
+		    },
+            selectfilename : function(event){
+                sessionStorage.setItem("selecteFile", '~'+subfilesgrid.value);
+                var filterText = document.querySelector('#filterformulas');
+                filterText.value = "";
+                sessionStorage.setItem("FilterCriteria", '');
+                sessionStorage.setItem('worksheetTitle', title.value);
+                var divtag = document.querySelector("#homepagediv");
+                divtag.innerText = title.value;
+                var grid = document.querySelector('#worksheet');
+                grid.fire('tap');
+
+            
+            },
+             DFUFilesListResponse: function(request) {
+			    console.log(request.detail.response.DFUQueryResponse.NumFiles);
+                var subfilesgrid = document.querySelector("#subfilesgrid");
+                if(request.detail.response.DFUQueryResponse.NumFiles === 0){
+                    subfilesgrid.items = [];
+                    subfilesgrid.selectedItem = null;
+                    alert('The scope does not have any sub files in it! Please choose any!');
+                    return;
+                }
+                var subfiles = request.detail.response.DFUQueryResponse.DFULogicalFiles.DFULogicalFile;
+                var subfilesstrnames = "";
+                var fileArray = [];
+                for(var cnt = 0; cnt < subfiles.length; cnt++){
+                    subfilesstrnames = subfilesstrnames + "," +subfiles[cnt].Name;
+                    fileArray[cnt] = subfiles[cnt].Name;
+                }
+                
+                subfilesgrid.items = fileArray;// subfilesstrnames.split(",");
+                subfilesgrid.selectedItem = fileArray[0];
+		  }
+        });
+
+
+    </script>
+
+
+</dom-module>
