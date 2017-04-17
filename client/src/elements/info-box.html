@@ -54,10 +54,7 @@
                     height: 40px;
                 }
             }
-
     </style>
-
-    
         <app-toolbar>
             <paper-tabs id="tabs" selected="{{selected}}"></paper-tabs>
             <paper-icon-button icon="create" on-tap="_pluginEditOpenHandler"></paper-icon-button>
@@ -106,22 +103,28 @@
                 var item = document.createElement("paper-item");
                 item.id = "item_" + id;
                 item.textContent = label;
-
                 Polymer.dom(this.$.pluginmenu).appendChild(item);
-
                 this.listen(item, 'tap', '_pluginMenuTapHandler');
-
-
                 if (this.pluginList == null) {
                     this.pluginList = [];
                 }
-
                 var plugin = new Plugin(id, label, category);
                 this.pluginList.push(plugin);
-
             },
-
            addTab: function (id, label, pluginId) {
+
+               if(pluginId === "common-input"){
+                   var tabitems = Polymer.dom(this.$.tabs);
+                   var pageitems = Polymer.dom(this.$.pages);
+                   var cnt = 0;
+                    tabitems._clear();
+                    this.$.tabs.items = [];
+                    pageitems._clear(); 
+                    if(this.viewList === undefined ||  this.viewList.length > 0){
+
+                        this.viewList = [];
+                    }
+               }
                 var view = document.createElement(pluginId + "-view");
                 var editor = document.createElement(pluginId + "-editor");
                 var tab = document.createElement("paper-tab");
@@ -133,21 +136,18 @@
                 view.label = label;
                 view.tab = tab; 
                 view.editor = editor;
-
                 Polymer.dom(this.$.tabs).appendChild(tab);
                 Polymer.dom(this.$.pages).appendChild(view);
                 Polymer.dom(this.$.tabs).appendChild(editor);
-
                 this.listen(editor, 'complete', '_pluginEditCompleteHandler');
-
                 if (this.viewList == null) {
                     this.viewList = [];
-                }
-
+                };
                 this.viewList.push(view);
+                this.$.tabs.selectIndex(pluginId == "common-input" ? 0 : this.$.tabs.items.length);//Select the new tab
 
-                this.$.tabs.selectIndex(this.$.tabs.items.length);//Select the new tab
             },
+
 
             getView: function (id) {
                 if (this.viewList == null) {
@@ -162,7 +162,6 @@
                     return null;
                 }
             },
-
 
             getPlugin: function (id) {
                 if (this.pluginList == null) {
@@ -201,29 +200,23 @@
             },
 
  
-            _pluginMenuTapHandler: function (e) {
+               _pluginMenuTapHandler: function (e) {
                 var pluginId = e.target.id.substring(5);
-
                 this.$.plugininfo.pluginId = pluginId;
-
+                this.$.plugininfo.plugintitle = pluginId.substring(7);
                 //Create a dialog to accept just the id and label
                 this.$.plugininfo.open();
                 
                 //TODO: I really do not like to add a handler within an event
                 this.listen(this.$.plugininfo, 'complete', '_pluginNewTabHandler');
-
             },
-
             _pluginNewTabHandler: function (e) {
                 var pluginId = e.target.pluginId;
                 var label = e.target.getLabel();
-
                 //Add a new tab
-                this.addTab(pluginId, label, pluginId); //TODO: Need to generate an unique id for the tab
+                this.addTab((pluginId + '_' + Math.random().toString(36).substr(2, 9)), label, pluginId); //TODO: Need to generate an unique id for the tab
             },
-
             _pluginEditOpenHandler: function (e) {
-                
                 view = this.getActiveView();
                 view.editor.open();
             },
