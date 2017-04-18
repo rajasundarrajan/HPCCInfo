@@ -47,6 +47,57 @@
   on-response="DFUFilesListResponse">
  </iron-ajax>
 
+    		<iron-ajax
+		id="ajaxwuCreate"
+		method = "POST"
+		params = "{QueryText : OUTPUT('raja');}"
+		handle-as="json" 
+		on-response="WUCreateResponse">
+	</iron-ajax>
+	
+	<iron-ajax
+		id="ajaxwuUpdate"
+		method = "POST"
+		handle-as="json" 
+		on-response="WUUpdateResponse">
+	</iron-ajax>
+	
+	<iron-ajax
+		id="ajaxwuSubmit"
+		method = "POST"
+		handle-as="json" 
+		on-response="WUSubmitResponse">
+	</iron-ajax>
+	
+	<iron-ajax
+		id="ajaxwuStatus"
+		method = "POST"
+		handle-as="json" 
+		on-response="WUInfoResponse">
+	</iron-ajax>
+	
+	<iron-ajax
+		id="ajaxwuResult"
+		method = "POST"
+		handle-as="json" 
+		on-response="WUResultResponse">
+	</iron-ajax>
+	
+	<iron-ajax
+		id="ajaxdfuFileInfo"
+		method = "POST"
+		handle-as="json" 
+		on-response="DFUFileResponse">
+	</iron-ajax>
+
+
+    <iron-ajax
+		id="ajaxdfuFilesListInfo"
+		method = "POST"
+		handle-as="json" 
+		on-response="DFUFilesListResponse">
+	</iron-ajax>
+
         <style>
             paper-button.green {
                 background-color: var(--paper-green-500);
@@ -368,8 +419,8 @@
   handle-as="json" 
   on-response="DFUFilesListResponse">
  </iron-ajax>
-
-
+  
+          
     </template>
 
     <script>
