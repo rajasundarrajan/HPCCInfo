@@ -36,3 +36,20 @@ function editProjectTitleHandler() {
 	}
 }
 
+/**
+	Read a JSON file
+	@param {String} file - Relative File Path of the JSON File
+	@param {requestCallback} callback - The callback that handles response
+**/
+function readJSONFile(file, callback) {
+	var xhr = new XMLHttpRequest();
+	xhr.overrideMimeType("application/json");
+	xhr.open("GET", file, true);
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState === 4 && xhr.status == "200") {
+			callback(xhr.responseText);
+		}
+	}
+	xhr.send(null);
+}
+

@@ -80,6 +80,7 @@
                 <paper-input style="padding-left: 5px"  id='password' label="Password" value="[[password]]"></paper-input>
                 <paper-toggle-button  id="httpSecured" >HTTP Secured</paper-toggle-button></br>
                 <paper-button style="background-color: #4caf50;;color: white;text-transform: none;"  on-tap="addAllToSession">Save Cluster Details</paper-button>
+                <paper-button style="background-color: #4caf50;;color: white;text-transform: none;"  on-tap="saveProjectDtls">Save Project Details</paper-button>
                 </div></app-drawer>
     </template>
     
@@ -116,8 +117,29 @@
                 infoBox.properties.password = "";
                 infoBox.properties.httpSecured = false;
 
+                readJSONFile("project_input.json", function(text){
+                     infoBox.properties.tabsdata = JSON.parse(text);
+
+                     var tabs = infoBox.properties.tabsdata.Tabs;
+
+                     for(var cnt =0; cnt < tabs.length; cnt++){
+                         var tab = tabs[cnt];
+                         
+                         console.log(tab.title);
+
+                         infobox.addTab(tab.pluginId,tab.title, tab.pluginId, true);    
+
+                     }
+                     infoBox.$.tabs.selected = 0;
+                     infoBox.$.pages.selected = 0;
+                    //  console.log(text);
+                });
+
                 var pluginId = "common-input";
-                infobox.addTab(pluginId, "Input", pluginId);    
+
+                if(infoBox.properties.tabsdata === undefined && infoBox.properties.tabsdata.Tabs === undefined) {
+                    infobox.addTab(pluginId, "Input", pluginId);    
+                }
 
                 }catch(e2){
                     console.log("Error occurred");
@@ -139,6 +161,30 @@
                 infoBox.properties.password = this.$.password.value;
                 infoBox.properties.httpSecured = this.$.httpSecured.value;
                 
+            },
+            saveProjectDtls : function(event){
+
+                var infoBox = this.$$('#infobox');
+
+                var tabs = infobox.querySelector('#tabs');
+
+                var projectJsonStr = '{\"cluster_details\":{';
+
+                projectJsonStr += '\"ip\" : \"' + infoBox.properties.cluster_address + '\",';
+                projectJsonStr += '\"name\" :\"' + infoBox.properties.cluster_name + '\",';
+                projectJsonStr += '\"port\" :\"' + infoBox.properties.port + '\",';
+                projectJsonStr += '\"username\" :\"' + infoBox.properties.username + '\",';
+                projectJsonStr += '\"password\" :\"' + infoBox.properties.password + '\",';
+                projectJsonStr += '\"hpccsecured\" :\"' + infoBox.properties.httpSecured + '\"}, \"Tabs\":[';
+
+                for(var cnt = 0 ; cnt < infoBox.viewList.length; cnt++){
+                    projectJsonStr += infoBox.viewList[cnt].editor.serialize() + (cnt < infoBox.viewList.length -1 ? ',' : '');
+                }
+                projectJsonStr += ']}';
+
+                console.log(projectJsonStr);
+
+                console.log( JSON.parse(projectJsonStr));
             },
 
 

@@ -1,21 +1,15 @@
-                this.listen(this.$.dialog, 'complete', infobox._pluginNewTabHandler(e));
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
-
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
-
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="info-plugin-dialog.html">
 <link rel="import" href="info-plugins.html">
-
-
-
 <dom-module id="info-box">
     <template>
     <style>
@@ -66,18 +60,21 @@
         <iron-pages id="pages" selected="{{selected}}"></iron-pages>
         <info-plugin-dialog id="plugininfo"></info-plugin-dialog>
     </template>
-    
-
-
     <script>
         Polymer({
             is: 'info-box',
+            listeners : {
+                'iron-select' : 'callme'
+            },
             properties: {
                 viewList: {
                     type: Array
                 },
                 pluginList: {
                     type: Array
+                },
+                tabsdata: {
+                    type : Object
                 },
                 selected: {
                     type: Number,
@@ -98,6 +95,14 @@
                 this.addPlugin("common-sort", "Sort", "common");
                 this.addPlugin("common-sample", "Sample", "common");
             },
+            callme : function(e){
+                console.log(e);
+                if(e.detail.item.editor != undefined){
+                    if(e.detail.item.querySelector('.projectworksheet').items.length === 0){
+                        e.detail.item.editor.loadgrid();
+                    }
+                }
+            },
 
             addPlugin: function (id, label, category) {
                 var item = document.createElement("paper-item");
@@ -111,7 +116,7 @@
                 var plugin = new Plugin(id, label, category);
                 this.pluginList.push(plugin);
             },
-           addTab: function (id, label, pluginId) {
+           addTab: function (id, label, pluginId, reload = false) {
 
                if(pluginId === "common-input"){
                    var tabitems = Polymer.dom(this.$.tabs);
@@ -119,36 +124,48 @@
                    var cnt = 0;
                     tabitems._clear();
                     this.$.tabs.items = [];
+                    this.$.tabs.tabs = [];
                     pageitems._clear(); 
+                    pageitems = [];
+                    tabitems = [];
+                    
                     if(this.viewList === undefined ||  this.viewList.length > 0){
-
-                        this.viewList = [];
+                        if(this.viewList != undefined ){
+                            var listsize = this.viewList.length;
+                            for(var cnt =0; cnt < listsize; cnt++){
+                                this.viewList.pop();
+                            }
+                        }
                     }
+                    this.$.tabs.selected = 0;
                }
                 var view = document.createElement(pluginId + "-view");
-                var editor = document.createElement(pluginId + "-editor");
+                var editor = document.createElement(pluginId + "-editor", {editortitle : label});
                 var tab = document.createElement("paper-tab");
                 tab.id = id;
                 tab.textContent = label;
-                
                 view.id = id;
                 view.pluginId = pluginId;
                 view.label = label;
                 view.tab = tab; 
                 view.editor = editor;
+                editor.properties.editortitle.value = label;
                 Polymer.dom(this.$.tabs).appendChild(tab);
                 Polymer.dom(this.$.pages).appendChild(view);
                 Polymer.dom(this.$.tabs).appendChild(editor);
+                document.querySelector('#pages').items.push(view);
+                document.querySelector('#tabs').items.push(editor);
                 this.listen(editor, 'complete', '_pluginEditCompleteHandler');
                 if (this.viewList == null) {
                     this.viewList = [];
                 };
                 this.viewList.push(view);
-                this.$.tabs.selectIndex(pluginId == "common-input" ? 0 : this.$.tabs.items.length);//Select the new tab
-
+                if(reload){
+                    editor.deSerialize(label);
+                }else{
+                    this.$.tabs.selectIndex(pluginId == "common-input" ? 0 : this.$.tabs.items.length -1);//Select the new tab
+                }
             },
-
-
             getView: function (id) {
                 if (this.viewList == null) {
                     return null;
