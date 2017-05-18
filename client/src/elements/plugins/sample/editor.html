@@ -46,7 +46,7 @@
                    required auto-validate allowed-pattern="^[a-zA-Z](.*[a-zA-Z0-9 ])?$" 
                    error-message="Title is Required"></paper-input>
             <paper-input id='sampleoutputlimit' allowed-pattern="[\d]" label="Output Limit" value="10000"></paper-input>
-            <vaadin-combo-box id='sampleInputtab' required label="Input Dataset" items='[]'></vaadin-combo-box>
+            <vaadin-combo-box id='sampleInputtab' required label="Input Dataset" on-value-changed='changeSampleInput' items='[]'></vaadin-combo-box>
             <paper-input id='samplingInterval' allowed-pattern="[\d]" label="Sampling Interval"></paper-input>
             <paper-input id='ordinalNumber' allowed-pattern="[\d]" label="Ordinal Number For Sample"></paper-input>
             <div class="buttons">
@@ -71,35 +71,56 @@
 		title : String
 	},
 
-        ready: function() {
-            var selpage = document.querySelector("#pages").querySelector("#common-input");
+    ready: function() {
 
-	this.properties.eclcode = selpage.editor.properties.eclcode;
+			console.log("Ready function");
+			var infoBox = document.querySelector('#infobox');
+			var selpage = document.querySelector("#pages").querySelector("#common-input");
+			var username = infoBox.properties.username;
+			var password = infoBox.properties.password;
+			var credentials = username === null || username === "" ? "" : (
+				password === null || password === "" ?  (username + '@') :
+				(username + ':' + password + '@')               
+			);
+			var eclIP = (infoBox.properties.isHpccSecured === "true" ? "https://" : "http://") +  infoBox.properties.cluster_address +
+				":" + infoBox.properties.port;
+			this.properties.eclIP = eclIP;
+			this.properties.hpccuser = username;
 
-	this.properties.inputdsname = selpage.editor.properties.outputdsname;
-
-	var infoBox = document.querySelector('#infobox');
-
-	var username = infoBox.properties.username;
-
-	var password = infoBox.properties.password;
-
-	var credentials = username === null || username === "" ? "" : (
-
-		password === null || password === "" ?  (username + '@') :
-
-		(username + ':' + password + '@')               
-
-	);
-
-	var eclIP = (infoBox.properties.isHpccSecured === "true" ? "https://" : "http://") +  infoBox.properties.cluster_address +
-		":" + infoBox.properties.port;
-
-	this.properties.eclIP = eclIP;
-
-	this.properties.hpccuser = username;
-
+			this.properties.displayFields = '';
+			this.properties.eclcode = '';
+			this.properties.editortitle = '';
+			this.$.TabTitle.value = '';
+			this.properties.inputdsname = '';
+			this.properties.outputdsname = '';
+			this.properties.expression = '';
 	},
+
+	 changeSampleInput: function(e){
+
+     		var tabid = "";
+
+			for(var cnt =0 ; cnt < document.getElementsByTagName("paper-tab").length; cnt++){
+				if(event.currentTarget.value === document.getElementsByTagName("paper-tab")[cnt].textContent.trim()){
+					tabid =  document.getElementsByTagName("paper-tab")[cnt].id;
+					break;
+				}
+			}
+
+          if(tabid === ''){
+               return;
+           }
+
+			var selpage = document.querySelector("#pages").querySelector("#" + tabid);
+
+			this.properties.eclcode = selpage.editor.properties.eclcode;
+
+			this.properties.inputdsname = selpage.editor.properties.outputdsname;
+
+			this.$.sortfield.items = selpage.editor.properties.displayFields.split(",");
+
+			return;
+       },
 
 	open: function () {
 
@@ -124,14 +145,14 @@
 
        serialize : function(){
             var jsonStr = '{';
-            jsonStr += '\"displayFields\" : \"' + this.properties.displayFields + '\",';
+				jsonStr += '\"displayFields\" : \"' + this.properties.displayFields + '\",';
             jsonStr += '\"editortitle\" : \"' + this.properties.editortitle + '\",';
             jsonStr += '\"eclcode\" : \"' + this.properties.eclcode.replace(/[\r\n]/g, '') + '\",';
             jsonStr += '\"inputdsname\" :\" ' + this.properties.inputdsname + '\",';
             jsonStr += '\"outputdsname\" : \"' + this.properties.outputdsname + '\",';
             jsonStr += '\"expression\" : \"' + this.properties.expression + '\",';
-            jsonStr += '\"title\" : \"' + this.properties.title + '\",';
-            jsonStr += '\"pluginId\" : \"' + 'common-input' + '\"}';
+            jsonStr += '\"title\" : \"' + this.properties.title.trim() + '\",';
+            jsonStr += '\"pluginId\" : \"' + 'common-sample' + '\"}';
 
             return jsonStr;
          },
@@ -157,10 +178,6 @@
                           this.properties.title = jsonTabContent.title;
                           this.properties.outputdsname = jsonTabContent.outputdsname;
                           this.properties.expression = jsonTabContent.expression;
-                          this.$.subfilesgrid.selectedItem = jsonTabContent.expression;
-                          this.$.ajaxdfuFileInfo.url=this.properties.eclIP+ "/WsDfu/DFUInfo.json";
-                          this.$.ajaxdfuFileInfo.params = {Name:jsonTabContent.expression};
-                          this.$.ajaxdfuFileInfo.generateRequest();
                           break;
                       }
               }
@@ -180,7 +197,7 @@
 
 	_okHandler: function (e) {
 
-		if(this.$.samplingInterval.value < this.$.ordinalNumber.value){
+		if(Number(this.$.samplingInterval.value) < Number(this.$.ordinalNumber.value)){
 			alert('Ordinal Number should be a valid number and less than Interval !!!');
 
 			return;

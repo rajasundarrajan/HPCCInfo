@@ -21,14 +21,20 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html" />
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html" />
 <link rel="import" href="../../bower_components/iron-label/iron-label.html" />
-<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="info-box.html">
 <!-- <link rel="import" href="info-plugin-dialog.html">
 <link rel="import" href="filter-dialog.html"> -->
 <link rel="import" href="new-worksheet-dialog.html">
 <link rel="import" href="open-worksheet-dialog.html">
+<link rel="import" href="my-app.html">
 <link rel="import" href="dialog-button.html">
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js" ></script>
+  <script src="https://apis.google.com/js/client:platform.js?onload=startApp"></script>
 
 <dom-module id="hpcc-info-app">
 
@@ -146,12 +152,17 @@
         <!-- ----------------------- App Drawer Left Position ---------------------------->
         <app-toolbar>
             <paper-icon-button icon="menu" onclick="drawer.toggle()" ></paper-icon-button>
-            <div class="main-title" id="projecttitle">Welcome to HPCCInfo Application</div>
+            <div class="main-title" id="projecttitle"  >Welcome to HPCCInfo Application</div>
+            <!--<div style="position: absolute;right: 0;font-size: small;font-weight: bold;!important">
+                 <paper-button id="signinout" style="background-color: #4caf50;;color: white;text-transform: none;float: right;"  onclick="handleSignInClick()" >Sign-In</paper-button> 
+            </div>-->
+           <my-app id="myhpccinfosignin"></my-app>
         </app-toolbar> 
-        <new-worksheet-dialog></new-worksheet-dialog>
-        <open-worksheet-dialog></open-worksheet-dialog>
-        <info-box id="infobox"></info-box>
-        <app-drawer id="drawer">
+        <new-worksheet-dialog id="newwork"></new-worksheet-dialog>
+        <open-worksheet-dialog id="openwork"></open-worksheet-dialog>
+        
+        <info-box id="infobox" ></info-box>
+        <app-drawer id="drawer" >
             <div class="listbx_div" role="listbox">
                 <section class="main">
                     <h2><iron-label>Actions</iron-label></h2><hr>
@@ -203,6 +214,10 @@
                 httpSecured : Boolean,
                 username    : String,
                 password  : String,
+                hideAppForSignin : {
+                    type : Boolean,
+                    value : true
+                }
 
             },
 
@@ -261,7 +276,7 @@
             },
 
             saveProjectDtls : function(event){
-
+                document.querySelector('#drawer').toggle();
                 var infoBox = this.$$('#infobox');
                 var projectid = infobox.properties.projectid;
 
@@ -270,8 +285,8 @@
 
             },
 
-            ajaxRetrieveProjectByNameResponse : function(eve){
 
+            ajaxRetrieveProjectByNameResponse : function(eve){
                 var infoBox = this.$$('#infobox');
 
                 var insterOrUpdate = this.$.ajaxRetrieveProjectByName.lastResponse.length > 0 ? false : true;
@@ -289,14 +304,20 @@
 
                 var title = infobox.properties.title;
 
-                var udpatedby = infobox.properties.updatedby;
+                var updatedby = infobox.properties.updatedby;
+
+                if(updatedby === undefined || updatedby === null ||updatedby === ''){
+                    return;
+                }
+                
+                infobox.properties.updatedby = updatedby;
 
                 var dateupdated = infobox.properties.dateupdated;
 
                 var file = infobox.properties.file;
 
 
-                var projectJsonStr = '{\"updatedby\": \"raja.sundarrajan@lexisnexis.com\", \"projectdata\" : \"{\\"cluster_details\\":{';
+                var projectJsonStr = '{\"updatedby\": \"' + updatedby + '\", \"projectdata\" : \"{\\"cluster_details\\":{';
 
                 var projectJsonStr1 = '';
 
@@ -313,7 +334,7 @@
 
                 projectJsonStr +=  projectJsonStr1.replace(/"/g, '\\"') + ' ]}\"' +  
                                    ',\"projectid\" : \"' + projectid + 
-                                   '",\"udpatedby\" : \"' + 'raja.sundarrajan@lexisnexis.com' + 
+                                   '",\"udpatedby\" : \"' +  'xxx.gmail.com'  + 
                                    '",\"dateupdated\" : \"' + new Date().toISOString().slice(0, 19).replace('T', ' ') + 
                                    '",\"file\" : \"' + file + 
                                     '",\"title\" : \"' + title + '\"}';
@@ -324,7 +345,7 @@
                 console.log(JSON.parse(projectJsonStr));
 
                 if(insterOrUpdate != true) {
-                    this.$.ajaxUpdateProject.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + projectid;
+                    this.$.ajaxUpdateProject.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + updatedby;
 
                     this.$.ajaxUpdateProject.body = JSON.stringify(JSON.parse(projectJsonStr));
 
@@ -341,7 +362,6 @@
                     this.$.ajaxAddProject.generateRequest();
                 }
             },
-
             addAllToSession  : function(event){
 
                  var infoBox = this.$$('#infobox');
