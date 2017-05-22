@@ -139,7 +139,6 @@
 			tabnames += (tabnames === "" ? "" : ",") + document.getElementsByTagName("paper-tab")[cnt].textContent.trim();
 		}
 		sampleInputtab.items = tabnames.split(",");
-
 		this.$.dialog.open();
 	},
 
@@ -278,8 +277,6 @@
             var currentPage = document.querySelector("#pages").selectedItem;
 
             var grid = currentPage.querySelector(".projectworksheet");
-
-
 			if(grid !== null){
 			  var cols = grid.columns;    
 				for(;cols.length > 0;){
