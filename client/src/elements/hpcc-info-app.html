@@ -249,37 +249,6 @@
                 editProjectTitleHandler();
 
             },
-            ajaxRetrieveProjectByNameResponse : function(eve){
-
-           		   console.log(this.$.ajaxRetrieveProjectByName.lastResponse[0].projectdata.replace(/\s*\n\s*/g,""));
-                    var infoBox = this.$$('#infobox');
-
-                    infoBox.properties.tabsdata = JSON.parse(this.$.ajaxRetrieveProjectByName.lastResponse[0].projectdata.replace("\n","").replace(/\s*\n\s*/g,""));
-
-                     var tabs = infoBox.properties.tabsdata.Tabs;
-
-                     var clusterDetails = infoBox.properties.tabsdata.cluster_details;
-
-                    infoBox.properties.cluster_name =  clusterDetails.name;
-                    infoBox.properties.cluster_address = clusterDetails.ip;
-                    infoBox.properties.port = clusterDetails.port;
-                    infoBox.properties.username = clusterDetails.username;
-                    infoBox.properties.password = clusterDetails.password;
-                    infoBox.properties.httpSecured = clusterDetails.httpsecured;                 
-
-                     for(var cnt =0; cnt < tabs.length; cnt++){
-                         var tab = tabs[cnt];
-                         
-                         console.log(tab.title);
-
-                         infobox.addTab(tab.pluginId,tab.title, tab.pluginId, true);    
-
-                     }
-                     infoBox.$.tabs.selected = 0;
-                     infoBox.$.pages.selected = 0;
-        		   return; 
-            },
-
             saveProjectDtls : function(event){
                 document.querySelector('#drawer').toggle();
                 var infoBox = this.$$('#infobox');
@@ -290,7 +259,6 @@
 
             },
 
-            ajaxRetrieveProjectByNameResponse : function(eve){
              exportProjectDtls : function(exportTo){
                 document.querySelector('#drawer').toggle();
                 this.$.exportTo =  exportTo;
@@ -353,7 +321,7 @@
 
                 projectJsonStr +=  projectJsonStr1.replace(/"/g, '\\"') + ' ]}\"' +  
                                    ',\"projectid\" : \"' + projectid + 
-                                   '",\"udpatedby\" : \"' +  'xxx.gmail.com'  + 
+                                   '",\"udpatedby\" : \"' +  updatedby  + 
                                    '",\"dateupdated\" : \"' + new Date().toISOString().slice(0, 19).replace('T', ' ') + 
                                    '",\"file\" : \"' + file + 
                                     '",\"title\" : \"' + title + '\"}';
@@ -364,7 +332,7 @@
                 console.log(JSON.parse(projectJsonStr));
 
                 if(insterOrUpdate != true) {
-                    this.$.ajaxUpdateProject.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + updatedby;
+                    this.$.ajaxUpdateProject.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + projectid;
 
                     this.$.ajaxUpdateProject.body = JSON.stringify(JSON.parse(projectJsonStr));
 
