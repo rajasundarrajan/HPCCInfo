@@ -25,6 +25,7 @@
 <link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
+
 <link rel="import" href="info-box.html">
 <!-- <link rel="import" href="info-plugin-dialog.html">
 <link rel="import" href="filter-dialog.html"> -->
@@ -217,6 +218,10 @@
                 hideAppForSignin : {
                     type : Boolean,
                     value : true
+                }, 
+                 exportTo : {
+                    type : String,
+                    value : ''
                 }
 
             },
@@ -276,15 +281,7 @@
             },
 
             saveProjectDtls : function(event){
-<<<<<<< HEAD
                 document.querySelector('#drawer').toggle();
-=======
-<<<<<<< HEAD
-
-=======
-                document.querySelector('#drawer').toggle();
->>>>>>> 703ecae9d87f79aa7b1e5979722e9cfbbc91aef2
->>>>>>> 589ba517ea8af46c2941e18f0bf8dbc768628b09
                 var infoBox = this.$$('#infobox');
                 var projectid = infobox.properties.projectid;
 
@@ -293,21 +290,24 @@
 
             },
 
-<<<<<<< HEAD
+            ajaxRetrieveProjectByNameResponse : function(eve){
+             exportProjectDtls : function(exportTo){
+                document.querySelector('#drawer').toggle();
+                this.$.exportTo =  exportTo;
+                var infoBox = this.$$('#infobox');
+                var projectid = infobox.properties.projectid;
+
+                 this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + projectid;
+                 this.$.ajaxRetrieveProjectByName.generateRequest();
+
+            },
+
 
             ajaxRetrieveProjectByNameResponse : function(eve){
-=======
-<<<<<<< HEAD
-            ajaxRetrieveProjectByNameResponse : function(eve){
-
-=======
-
-            ajaxRetrieveProjectByNameResponse : function(eve){
->>>>>>> 703ecae9d87f79aa7b1e5979722e9cfbbc91aef2
->>>>>>> 589ba517ea8af46c2941e18f0bf8dbc768628b09
                 var infoBox = this.$$('#infobox');
 
-                var insterOrUpdate = this.$.ajaxRetrieveProjectByName.lastResponse.length > 0 ? false : true;
+                var insterOrUpdate = (this.$.ajaxRetrieveProjectByName.lastResponse.length > 0 ? 
+                                      (( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? false : true) : true);
 
                 infoBox.properties.cluster_name = this.$.cluster_name.value;
                 infoBox.properties.cluster_address = this.$.cluster_address.value;
@@ -318,42 +318,25 @@
 
                 var tabs = infobox.querySelector('#tabs');
 
-                var projectid = infobox.properties.projectid;
+                var projectid = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infobox.properties.projectid : 'projectid' + '_' +  Math.random().toString(36).substr(2, 4);
+                //  infobox.properties.projectid;
 
                 var title = infobox.properties.title;
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-                var udpatedby = infobox.properties.updatedby;
-=======
->>>>>>> 589ba517ea8af46c2941e18f0bf8dbc768628b09
-                var updatedby = infobox.properties.updatedby;
+                var updatedby = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infobox.properties.updatedby :  this.$.exportTo;
 
                 if(updatedby === undefined || updatedby === null ||updatedby === ''){
                     return;
                 }
                 
                 infobox.properties.updatedby = updatedby;
-<<<<<<< HEAD
-=======
->>>>>>> 703ecae9d87f79aa7b1e5979722e9cfbbc91aef2
->>>>>>> 589ba517ea8af46c2941e18f0bf8dbc768628b09
 
                 var dateupdated = infobox.properties.dateupdated;
 
                 var file = infobox.properties.file;
 
 
-<<<<<<< HEAD
                 var projectJsonStr = '{\"updatedby\": \"' + updatedby + '\", \"projectdata\" : \"{\\"cluster_details\\":{';
-=======
-<<<<<<< HEAD
-                var projectJsonStr = '{\"updatedby\": \"raja.sundarrajan@lexisnexis.com\", \"projectdata\" : \"{\\"cluster_details\\":{';
-=======
-                var projectJsonStr = '{\"updatedby\": \"' + updatedby + '\", \"projectdata\" : \"{\\"cluster_details\\":{';
->>>>>>> 703ecae9d87f79aa7b1e5979722e9cfbbc91aef2
->>>>>>> 589ba517ea8af46c2941e18f0bf8dbc768628b09
 
                 var projectJsonStr1 = '';
 
@@ -363,7 +346,6 @@
                 projectJsonStr1 += '\"username\" :\"' + infoBox.properties.username + '\",';
                 projectJsonStr1 += '\"password\" :\"' + infoBox.properties.password + '\",';
                 projectJsonStr1 += '\"hpccsecured\" :\"' + infoBox.properties.httpSecured + '\"}, \"Tabs\":[';
-<<<<<<< HEAD
 
                 for(var cnt = 0 ; cnt < infoBox.viewList.length; cnt++){
                     projectJsonStr1 += infoBox.viewList[cnt].editor.serialize() + (cnt < infoBox.viewList.length -1 ? ',' : '');
@@ -399,46 +381,6 @@
                     this.$.ajaxAddProject.generateRequest();
                 }
             },
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 703ecae9d87f79aa7b1e5979722e9cfbbc91aef2
-
-                for(var cnt = 0 ; cnt < infoBox.viewList.length; cnt++){
-                    projectJsonStr1 += infoBox.viewList[cnt].editor.serialize() + (cnt < infoBox.viewList.length -1 ? ',' : '');
-                }
-
-                projectJsonStr +=  projectJsonStr1.replace(/"/g, '\\"') + ' ]}\"' +  
-                                   ',\"projectid\" : \"' + projectid + 
-                                   '",\"udpatedby\" : \"' +  'xxx.gmail.com'  + 
-                                   '",\"dateupdated\" : \"' + new Date().toISOString().slice(0, 19).replace('T', ' ') + 
-                                   '",\"file\" : \"' + file + 
-                                    '",\"title\" : \"' + title + '\"}';
-
-                
-                console.log(projectJsonStr);
-
-                console.log(JSON.parse(projectJsonStr));
-
-                if(insterOrUpdate != true) {
-                    this.$.ajaxUpdateProject.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + updatedby;
-
-                    this.$.ajaxUpdateProject.body = JSON.stringify(JSON.parse(projectJsonStr));
-
-                    this.$.ajaxUpdateProject.contentType =  'application/json';
-
-                    this.$.ajaxUpdateProject.generateRequest();
-                }else{
-                    this.$.ajaxAddProject.url = 'http://' + window.location.hostname + ':3000/projectDetails';
-
-                    this.$.ajaxAddProject.body = JSON.stringify(JSON.parse(projectJsonStr));
-
-                    this.$.ajaxAddProject.contentType =  'application/json';
-
-                    this.$.ajaxAddProject.generateRequest();
-                }
-            },
->>>>>>> 589ba517ea8af46c2941e18f0bf8dbc768628b09
             addAllToSession  : function(event){
 
                  var infoBox = this.$$('#infobox');
