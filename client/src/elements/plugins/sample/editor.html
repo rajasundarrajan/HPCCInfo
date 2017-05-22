@@ -61,6 +61,7 @@
 
 	properties: {
 		eclcode : String,
+		inputeclcode : String,
 		outputdsname : String,
 		inputdsname : String,
 		eclIP : String,
@@ -89,6 +90,7 @@
 
 			this.properties.displayFields = '';
 			this.properties.eclcode = '';
+			this.properties.inputeclcode = '';
 			this.properties.editortitle = '';
 			this.$.TabTitle.value = '';
 			this.properties.inputdsname = '';
@@ -114,6 +116,8 @@
 			var selpage = document.querySelector("#pages").querySelector("#" + tabid);
 
 			this.properties.eclcode = selpage.editor.properties.eclcode;
+
+			this.properties.inputeclcode = selpage.editor.properties.eclcode;
 
 			this.properties.inputdsname = selpage.editor.properties.outputdsname;
 
@@ -144,7 +148,7 @@
 
        serialize : function(){
             var jsonStr = '{';
-				jsonStr += '\"displayFields\" : \"' + this.properties.displayFields + '\",';
+			jsonStr += '\"displayFields\" : \"' + this.properties.displayFields + '\",';
             jsonStr += '\"editortitle\" : \"' + this.properties.editortitle + '\",';
             jsonStr += '\"eclcode\" : \"' + this.properties.eclcode.replace(/[\r\n]/g, '') + '\",';
             jsonStr += '\"inputdsname\" :\" ' + this.properties.inputdsname + '\",';
@@ -170,6 +174,7 @@
                           jsonTabContent = tabs[cnt];
                           this.properties.displayFields = jsonTabContent.displayFields;
                           this.properties.eclcode = jsonTabContent.eclcode;
+						  this.properties.inputeclcode = jsonTabContent.eclcode;
                           this.properties.editortitle = jsonTabContent.title;
                           this.$.TabTitle.value = jsonTabContent.title;
                           this.properties.inputdsname = jsonTabContent.inputdsname;
@@ -208,7 +213,7 @@
 
 		this.properties.outputdsname = currentPage.properties.outputdsname;
 
-	   var QueryStr1 =  this.properties.eclcode + "\n" +  currentPage.properties.outputdsname + " := " + " SAMPLE(" +
+	   var QueryStr1 =  this.properties.inputeclcode + "\n" +  currentPage.properties.outputdsname + " := " + " SAMPLE(" +
 						this.properties.inputdsname + ", " + 
 						this.$.samplingInterval.value + ", " + 
 						this.$.ordinalNumber.value +                                 
