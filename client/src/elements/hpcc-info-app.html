@@ -30,6 +30,7 @@
 
 <link rel="import" href="info-box.html">
 <link rel="import" href="new-worksheet-dialog.html">
+<link rel="import" href="edit-worksheet-dialog.html">
 <link rel="import" href="open-worksheet-dialog.html">
 <link rel="import" href="dialog-button.html">
 <link rel="import" href="my-login.html">
@@ -158,6 +159,7 @@
 
         </app-toolbar> 
         <new-worksheet-dialog id="newwork"></new-worksheet-dialog>
+        <edit-worksheet-dialog id="editwork"></edit-worksheet-dialog>
         <open-worksheet-dialog id="openwork"></open-worksheet-dialog>
         
          <template is="dom-if" if="[[user]]">
@@ -172,12 +174,17 @@
                         <iron-label class="headerLabels">New Worksheet</iron-label>
                     </p>
                     <paper-tooltip for="new-worksheet-dialog" offset="10">New Worksheet</paper-tooltip>
+                    <p><dialog-button id="edit-worksheet-dialog" disabled=true icon="create"></dialog-button>
+                        <iron-label class="headerLabels">Edit Worksheet</iron-label>
+                    </p>
+
+                    <paper-tooltip for="edit-worksheet-dialog" offset="10">Edit Worksheet</paper-tooltip>
                     <p><dialog-button id="open-worksheet-dialog" icon="mail"></dialog-button>
                         <iron-label class="headerLabels">Open Worksheet</iron-label>
                     </p>
                     <paper-tooltip for="open-worksheet-dialog" offset="10">Open Worksheet</paper-tooltip>
 
-                    <h2><iron-label>Cluster Details</iron-label></h2><hr>
+                    <!--<h2><iron-label>Cluster Details</iron-label></h2><hr>
                     <paper-input class="paperInputs" id='cluster_name' label="Cluster Name" value="[[clustername]]"></paper-input>
                     <paper-input class="paperInputs" id='cluster_address' label="Cluster Address" value="[[clusteraddress]]"></paper-input>
                     <paper-input class="paperInputs" id='port' label="Port" value="[[port]]"></paper-input>
@@ -186,7 +193,7 @@
                     </br>
                     <paper-toggle-button class="toggleBtn" id="httpSecured">
                         <iron-label class="headerLabels">HTTP Secured</iron-label>
-                    </paper-toggle-button></br></br>
+                    </paper-toggle-button></br></br>-->
                     <!--<paper-button class="btnSaveClusterDetails" on-tap="addAllToSession">Save Cluster Details</paper-button>-->
                     <paper-button style="background-color: #4caf50;;color: white;text-transform: none;"  on-tap="saveProjectDtls">Save</paper-button>
 
@@ -273,7 +280,7 @@
                             var pluginId = "common-input";
                             infoBox.properties.projectid = 'projectid' + '_' +  Math.random().toString(36).substr(2, 4); 
                             infoBox.properties.title = 'Welcome to HPCCInfo Application';
-                            infobox.addTab(pluginId, "Input", pluginId);
+                            // infobox.addTab(pluginId, "Input", pluginId);
 
                             //Initialize projecttitle handler for inline editing of projecttitle
                             editProjectTitleHandler();  
@@ -298,7 +305,7 @@
             saveProjectDtls : function(event){
                 var infoBox = this.$$('#infobox');
                 var projectid = infobox.properties.projectid;
-                this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + projectid;
+                this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails/' + projectid;
                 document.querySelector('#infobox').parentNode.querySelector('#drawer').toggle();
                 this.$.ajaxRetrieveProjectByName.generateRequest();
                 
@@ -309,7 +316,7 @@
                 this.$.exportTo =  exportTo;
                 var infoBox = this.$$('#infobox');
                 var projectid = infobox.properties.projectid;
-                this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + projectid;
+                this.$.ajaxRetrieveProjectByName.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails/' + projectid;
                 this.$.ajaxRetrieveProjectByName.generateRequest();
 
             },
@@ -320,19 +327,19 @@
                 var insterOrUpdate = (this.$.ajaxRetrieveProjectByName.lastResponse.length > 0 ? 
                                       (( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? false : true) : true);
 
-                infoBox.properties.cluster_name = this.$.cluster_name.value;
-                infoBox.properties.cluster_address = this.$.cluster_address.value;
-                infoBox.properties.port = this.$.port.value;
-                infoBox.properties.username = this.$.username.value;
-                infoBox.properties.password = this.$.password.value;
-                infoBox.properties.httpSecured = this.$.httpSecured.value;
+                // infoBox.properties.cluster_name = this.$.cluster_name.value;
+                // infoBox.properties.cluster_address = this.$.cluster_address.value;
+                // infoBox.properties.port = this.$.port.value;
+                // infoBox.properties.username = this.$.username.value;
+                // infoBox.properties.password = this.$.password.value;
+                // infoBox.properties.httpSecured = this.$.httpSecured.value;
 
                 var tabs = infobox.querySelector('#tabs');
 
                 var projectid = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infobox.properties.projectid : 'projectid' + '_' +  Math.random().toString(36).substr(2, 4);
                 //  infobox.properties.projectid;
 
-                var title = infobox.properties.title;
+                var title = this.$.projecttitle.textContent;
 
                 var updatedby = ( this.$.exportTo === undefined ||  this.$.exportTo === null || this.$.exportTo === '') ? infobox.properties.updatedby :  this.$.exportTo;
 
@@ -374,7 +381,7 @@
                 console.log(JSON.parse(projectJsonStr));
 
                 if(insterOrUpdate != true) {
-                    this.$.ajaxUpdateProject.url = 'http://' + window.location.hostname + ':3000/projectDetails/' + projectid;
+                    this.$.ajaxUpdateProject.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails/' + projectid;
 
                     this.$.ajaxUpdateProject.body = JSON.stringify(JSON.parse(projectJsonStr));
 
@@ -382,7 +389,7 @@
 
                     this.$.ajaxUpdateProject.generateRequest();
                 }else{
-                    this.$.ajaxAddProject.url = 'http://' + window.location.hostname + ':3000/projectDetails';
+                    this.$.ajaxAddProject.url = 'http://' + window.location.hostname + ':' + window.location.port + '/projectDetails';
 
                     this.$.ajaxAddProject.body = JSON.stringify(JSON.parse(projectJsonStr));
 
