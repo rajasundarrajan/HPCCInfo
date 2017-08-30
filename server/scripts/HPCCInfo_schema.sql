@@ -16,7 +16,7 @@ CREATE TABLE `projectdetails` (
 
 
 
-CREATE TABLE `userdetails` (
+CREATE TABLE `userdetails` ( 
   `username` varchar(50) DEFAULT NULL,
   `pwd` varchar(50) DEFAULT NULL,
   `type` varchar(45) DEFAULT 'Admin'
